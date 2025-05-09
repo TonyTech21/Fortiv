@@ -1,44 +1,6 @@
 [
-  {
-    "id": "285f9b50-c072-4ee1-bd66-e063927f9e07",
-    "fullName": "Anthony Ajibola ",
-    "email": "anthonyajibola1@gmail.com",
-    "password": "$2a$10$5Ruf5h9Kqnw/AbzPWbVigedi85MsIdEC/KfPf99DESfZjVSMWX3AG",
-    "country": "Andorra",
-    "balance": 1000,
-    "canTrade": true,
-    "createdAt": "2025-04-29T14:24:02.562Z"
-  },
-  {
-    "id": "086ad46f-f79c-4187-8c3e-1014fbe754fb",
-    "fullName": "Anthony Ajibola ",
-    "email": "anthonyajibola65@gmail.com",
-    "password": "$2a$10$39JnUXjKux.YcPI9f520VOJb94uj7LSM01Nw.87SzNEQhnoq.ezT6",
-    "country": "Finland",
-    "balance": 500,
-    "canTrade": false,
-    "createdAt": "2025-05-01T14:02:29.305Z"
-  },
-  {
-    "id": "bd292126-f4dc-48d9-a8f2-df1c2337376c",
-    "fullName": "Anthony Ajibola ",
-    "email": "anthonyajibola6@gmail.com",
-    "password": "$2a$10$ozs7ZqtW0twhyCB8SXvHjeMEQPNaf44MTPiGUhldX9CtzF33l2/9G",
-    "country": "Afghanistan",
-    "balance": 500,
-    "canTrade": false,
-    "createdAt": "2025-05-01T14:06:10.722Z"
-  },
-  {
-    "id": "eb3d47f3-b48c-40f2-9247-754699a951af",
-    "fullName": "itoro iseyen",
-    "email": "itoro@gmail.com",
-    "password": "$2a$10$ftrwKnqe6CQrPc83Bvvw5.pnZJBH8GgzH4EKFBFLTdQ7Llq4I08ku",
-    "country": "Barbados",
-    "balance": 500,
-    "canTrade": false,
-    "createdAt": "2025-05-01T14:08:46.662Z"
-  },
+  
+ 
   {
     "id": "f62a6653-b1d2-4c2d-afbe-f4e574ee3455",
     "fullName": "Ajibola Anthony",
