@@ -252,6 +252,7 @@ body {
 /* Animate button */
 .btn-animated {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 15px;
 }
 
 .btn-animated:hover {
