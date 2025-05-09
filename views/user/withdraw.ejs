@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw - Trading Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://i.imgur.com/xnzyBi9.png" rel="shortcut icon"/>
+</head>
+<body>
+  <div class="dashboard-container">
+    <%- include('../partials/user-nav.ejs', { user, page }) %>
+    
+    <main class="dashboard-content">
+      <div class="section-header withdraw-header">
+        <h2><i data-lucide="arrow-up-circle"></i> Withdraw Funds</h2>
+        <p>Request a withdrawal to your Bitcoin wallet</p>
+      </div>
+      
+      <div class="withdraw-container" style="margin-top: 10px;">
+        <div class="card withdraw-card">
+          <div class="balance-summary">
+            <h3><i data-lucide="wallet"></i> Available Balance</h3>
+            <div class="balance-amount">$<%= user.balance.toFixed(2) %></div>
+          </div>
+      
+          <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+          <% } %>
+      
+          <% if (success) { %>
+            <div class="alert alert-success"><%= success %></div>
+          <% } %>
+        
+      
+      
+          
+          <form action="/user/withdraw" method="POST" id="withdrawForm">
+            <div class="form-group">
+              <label for="bitcoinAddress">Bitcoin Address <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="bitcoinAddress" 
+                name="bitcoinAddress" 
+                value="<%= locals.formData ? formData.bitcoinAddress : '' %>" 
+                required
+              >
+              <small>Enter your Bitcoin address for receiving funds</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="walletUid">Wallet UID (optional)</label>
+              <input 
+                type="text" 
+                id="walletUid" 
+                name="walletUid" 
+                value="<%= locals.formData ? formData.walletUid : '' %>"
+              >
+              <small>If your wallet requires a UID, enter it here</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="amount">Withdrawal Amount <span class="required">*</span></label>
+              <div class="input-group">
+                <span class="input-prefix">$</span>
+                <input 
+                  type="number" 
+                  id="amount" 
+                  name="amount" 
+                  min="0.01" 
+                  step="0.01" 
+                  max="<%= user.balance %>" 
+                  value="<%= locals.formData ? formData.amount : '' %>" 
+                  required
+                >
+              </div>
+              <small>Maximum amount: $<%= user.balance.toFixed(2) %></small>
+            </div>
+            
+            <div class="form-note">
+              <p>
+                <strong>Note:</strong> Withdrawal requests are typically processed within 
+                24 hours. You will receive an email confirmation when your request is processed.
+              </p>
+            </div>
+            
+            <button style="margin-top: 5px;" type="submit" class="btn btn-primary btn-block">Submit Withdrawal Request</button>
+          </form>
+        </div>
+        
+        <div class="card faq-card" style="margin-top: 10px;">
+          <h3>Withdrawal FAQ</h3>
+          <div class="faq-item">
+            <h4>How long do withdrawals take?</h4>
+            <p>Withdrawals are typically processed within 24 hours.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Is there a minimum withdrawal amount?</h4>
+            <p>Yes, the minimum withdrawal amount is $10.00.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Are there any withdrawal fees?</h4>
+            <p>There is a small network fee for Bitcoin transactions, usually around 0.0005 BTC.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <h3>Confirm Logout</h3>
+      <p>Are you sure you want to log out?</p>
+      <div class="modal-buttons">
+        <button id="confirmLogout" class="btn btn-danger">Yes</button>
+        <button id="cancelLogout" class="btn btn-secondary">No</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/withdraw.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

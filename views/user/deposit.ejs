@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit - Trading Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://i.imgur.com/xnzyBi9.png" rel="shortcut icon"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    :root {
+        --primary: #00ffcc;
+        --primary-dark: #00e6b8;
+        --secondary: #3b82f6;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+
+    body {
+        background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+    }
+
+    .hero {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+            url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 8rem 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '🤍';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 13rem;
+        transform: translate(-50%, -50%);
+        animation: heartbeat 2s ease-in-out infinite;
+        opacity: 0.3;
+        z-index: 0;
+    }
+
+    @keyframes heartbeat {
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+        50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+    }
+
+    .hero-logo {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        margin: 0 auto 3rem;
+        border: 4px solid var(--primary);
+        box-shadow: 0 0 40px rgba(0, 255, 204, 0.4);
+        animation: pulseLogo 3s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+        object-fit: cover;
+    }
+
+    @keyframes pulseLogo {
+        0% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 204, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 255, 204, 0.6); }
+        100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 204, 0.4); }
+    }
+
+    .hero h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        margin-bottom: 1.5rem;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .hero p {
+        font-size: clamp(1rem, 3vw, 1.4rem);
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        padding: 0 1rem;
+    }
+
+    .hero-buttons {
+        margin-top: 3rem;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        padding: 0 1rem;
+    }
+
+    .btn {
+        padding: 1.2rem 2.5rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        min-width: 200px;
+    }
+
+    .btn-primary {
+        background: var(--gradient);
+        color: var(--text-primary);
+        box-shadow: 0 4px 20px rgba(0, 255, 204, 0.3);
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 30px rgba(0, 255, 204, 0.4);
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 6rem 1rem;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+        padding: 0 1rem;
+    }
+
+    .section-title h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 1rem;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        display: inline-block;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .section-title .underline {
+        width: 100px;
+        height: 4px;
+        background: var(--gradient);
+        margin: 0 auto;
+        border-radius: 2px;
+        position: relative;
+    }
+
+    .section-title .underline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--gradient);
+        filter: blur(10px);
+        opacity: 0.7;
+    }
+
+    .crypto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.crypto-card {
+  background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.crypto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.crypto-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.crypto-name {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.wallet-address {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  word-break: break-all;
+  margin-bottom: 1rem;
+}
+
+.copy-btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: #2563eb;
+}
+
+
+    .crypto-card {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .crypto-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--gradient);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+    }
+
+    .crypto-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        border-color: var(--primary);
+    }
+
+    .crypto-card:hover::before {
+        opacity: 0.1;
+    }
+
+    .crypto-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 2rem;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.4s ease;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+
+    .crypto-card:hover .crypto-icon {
+        transform: scale(1.1);
+    }
+
+    .crypto-name {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+    }
+
+    .wallet-address {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.2rem;
+        border-radius: 12px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        word-break: break-all;
+        position: relative;
+        z-index: 1;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+
+    .crypto-card:hover .wallet-address {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+    }
+
+    .copy-btn {
+        background: var(--gradient);
+        color: var(--text-primary);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .copy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 255, 204, 0.3);
+    }
+
+    .copy-btn.copied {
+        background: #10b981;
+    }
+
+    .form-section {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        margin: 6rem 1rem 0 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s ease;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .form-section:hover {
+        border-color: var(--primary);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .form-group input {
+        padding: 1.2rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    footer {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 4rem 1rem;
+        text-align: center;
+        margin-top: 6rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 2.5rem 0;
+        flex-wrap: wrap;
+    }
+
+    .social-link {
+        color: var(--text-secondary);
+        font-size: 1.8rem;
+        transition: all 0.4s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .social-link:hover {
+        color: var(--primary);
+        transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+    }
+
+    .contact-info {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        flex-wrap: wrap;
+        padding: 0 1rem;
+    }
+
+    .contact-info a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .contact-info a:hover {
+        color: var(--primary);
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .hero-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .form-section {
+            padding: 2rem 1.5rem;
+        }
+
+        .contact-info {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .contact-info a {
+            justify-content: center;
+        }
+
+        .crypto-grid {
+            gap: 1.5rem;
+        }
+
+        .crypto-card {
+            padding: 1.5rem;
+        }
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--gradient);
+        color: var(--text-primary);
+        padding: 1.2rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--gradient);
+        border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+        .hero {
+            padding: 4rem 1rem;
+        }
+
+        .hero-logo {
+            width: 100px;
+            height: 100px;
+        }
+
+        .section-title {
+            margin-bottom: 2rem;
+        }
+
+        .crypto-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .crypto-name {
+            font-size: 1.4rem;
+        }
+
+        .wallet-address {
+            font-size: 0.8rem;
+            padding: 0.8rem;
+        }
+
+        .toast {
+            left: 1rem;
+            right: 1rem;
+            text-align: center;
+        }
+    }
+</style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <%- include('../partials/user-nav.ejs', { user, page }) %>
+    
+    <main class="dashboard-content">
+      <div class="section-header">
+        <h2>Deposit Funds</h2>
+        <p>Choose your preferred cryptocurrency to make a deposit</p>
+      </div>
+      
+      <div class="deposit-container">
+        <div class="card">
+          <div class="crypto-grid">
+            <div class="crypto-card">
+                <img src="https://i.imgur.com/4hRJr0m.jpeg" style="border-radius: 50%;" alt="Bitcoin" class="crypto-icon">
+                <h3 class="crypto-name">Bitcoin (BTC)</h3>
+                <div class="wallet-address">1HunL6nu6ZLqrgXPzPvLcb3Lc6JviMDy9c</div>
+                <button class="copy-btn" data-address="1HunL6nu6ZLqrgXPzPvLcb3Lc6JviMDy9c">Copy Address</button>
+            </div>
+
+            <div class="crypto-card">
+                <img src="https://i.imgur.com/s9InCha.jpeg" style="border-radius: 50%;" alt="Ethereum" class="crypto-icon">
+                <h3 class="crypto-name">Ethereum (ETH)</h3>
+                <div class="wallet-address">0x54070e979527310b8f959a3532058813b1d664b7</div>
+                <button class="copy-btn" data-address="0x54070e979527310b8f959a3532058813b1d664b7">Copy Address</button>
+            </div>
+
+            <div class="crypto-card">
+                <img src="https://i.imgur.com/P17ahLZ.jpeg" style="border-radius: 50%;" alt="Tether" class="crypto-icon">
+                <h3 class="crypto-name">Tether (USDT)</h3>
+                <div class="wallet-address">0x54070e979527310b8f959a3532058813b1d664b7</div>
+                <button class="copy-btn" data-address="0x54070e979527310b8f959a3532058813b1d664b7">Copy Address</button>
+            </div>
+
+            <div class="crypto-card">
+                <img src="https://i.imgur.com/QTSzRRZ.jpeg" style="border-radius: 50%;" alt="Binance Coin" class="crypto-icon">
+                <h3 class="crypto-name">Binance Coin (BNB)</h3>
+                <div class="wallet-address">0x54070e979527310b8f959a3532058813b1d664b7</div>
+                <button class="copy-btn" data-address="0x54070e979527310b8f959a3532058813b1d664b7">Copy Address</button>
+            </div>
+        </div>
+          
+          <% if (error) { %>
+            <div class="alert alert-error">
+              <%= error %>
+            </div>
+          <% } %>
+          
+          <% if (success) { %>
+            <div class="alert alert-success">
+              <%= success %>
+            </div>
+          <% } %>
+          
+          <button style="margin-top: 10px;" id="notifyDepositBtn" class="btn btn-primary btn-block">Notify After Deposit</button>
+        </div>
+        
+          <h3 style="margin-top: 30px;">Deposit Instructions</h3>
+          <div class="deposit-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Select Cryptocurrency</h4>
+                <p>Choose your preferred cryptocurrency from the options above</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Make Payment</h4>
+                <p>Send the desired amount to the provided wallet address</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Notify Us</h4>
+                <p>Click the "Notify After Deposit" button and provide transaction details</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Deposit Notification Modal -->
+  <div id="depositModal" class="modal">
+    <div class="modal-content">
+      <h3>Notify Deposit</h3>
+      <form id="depositForm" action="/user/deposit" method="POST">
+        <div class="form-group">
+          <label for="amount">Deposit Amount <span class="required">*</span></label>
+          <div class="input-group">
+            <span class="input-prefix">$</span>
+            <input type="number" id="amount" name="amount" min="10" step="0.01" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cryptocurrency">Cryptocurrency Used <span class="required">*</span></label>
+          <select id="cryptocurrency" name="cryptocurrency" required>
+            <option value="">Select cryptocurrency</option>
+            <option value="Bitcoin">Bitcoin</option>
+            <option value="USDT">USDT</option>
+            <option value="Tether">Tether</option>
+            <option value="BNB">BNB</option>
+          </select>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    const notifyBtn = document.getElementById('notifyDepositBtn');
+    const modal = document.getElementById('depositModal');
+    const cryptoSelect = document.getElementById('cryptocurrency');
+    
+    function selectCrypto(crypto) {
+      document.querySelectorAll('.crypto-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      cryptoSelect.value = crypto;
+    }
+    
+    notifyBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+    });
+    
+    function closeDepositModal() {
+      modal.classList.remove('show');
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeDepositModal();
+      }
+    }
+  </script>
+   <script>
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const address = button.dataset.address;
+            try {
+                await navigator.clipboard.writeText(address);
+                
+                button.classList.add('copied');
+                button.textContent = 'Copied👍🏼';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.textContent = 'Copy Address';
+                }, 2000);
+
+                const toast = document.getElementById('toast');
+                toast.textContent = 'Address copied to clipboard!';
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+    });
+
+    document.querySelector('form').addEventListener('submit', (e) => {
+        
+        const toast = document.getElementById('toast');
+        toast.textContent = 'Thank you for your Love, our team will reach out to you soon on how to proceed, ❤️';
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+  
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

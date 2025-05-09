@@ -1,0 +1,22 @@
+[
+  {
+    "id": "010ee0ce-0da7-4de9-b57f-678fc1382349",
+    "userId": "f62a6653-b1d2-4c2d-afbe-f4e574ee3455",
+    "userEmail": "webberaxel4@gmail.com",
+    "userName": "Ajibola Anthony",
+    "amount": 100,
+    "cryptocurrency": "Bitcoin",
+    "status": "rejected",
+    "createdAt": "2025-05-08T09:31:36.930Z"
+  },
+  {
+    "id": "e54f6e49-4f53-457f-aaed-38497dfb7f87",
+    "userId": "f62a6653-b1d2-4c2d-afbe-f4e574ee3455",
+    "userEmail": "webberaxel4@gmail.com",
+    "userName": "Ajibola Anthony",
+    "amount": 4556,
+    "cryptocurrency": "Bitcoin",
+    "status": "pending",
+    "createdAt": "2025-05-08T22:01:25.991Z"
+  }
+]

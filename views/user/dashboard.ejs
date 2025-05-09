@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Trading Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://i.imgur.com/xnzyBi9.png" rel="shortcut icon"/>
+</head>
+<body>
+  <div class="dashboard-container">
+    <%- include('../partials/user-nav.ejs', { user, page }) %>
+    
+    <main class="dashboard-content">
+      <div class="welcome-header enhanced-welcome">
+        <div class="welcome-left">
+          <div class="greeting-icon">👋</div>
+          <div class="welcome-texts">
+            <h2 id="greeting">Welcome, <%= user.fullName.split(' ')[0] %>!</h2>
+            <p class="sub-greeting">We’re glad to see you again.</p>
+            <p class="last-login">Last login: <%= new Date().toLocaleString() %></p>
+          </div>
+        </div>
+        
+      </div>
+      
+      
+      <div class="account-overview">
+        <div class="card-glass balance-card">
+          <h3 class="balance-title" style="text-align: center !important;">
+            <i data-lucide="wallet" class="icon-title"></i>
+            Account Balance
+          </h3>
+          <div class="balance-amount-glow">$<%= user.balance.toFixed(2) %></div>
+          
+          <div class="balance-actions">
+            <a href="/user/deposit" class="btn-action deposit">
+              <i data-lucide="arrow-down-circle"></i>
+              Deposit
+            </a>
+            <a href="/user/trade" class="btn-action trade">
+              <i data-lucide="activity"></i>
+              Trade
+            </a>
+            <a href="/user/withdraw" class="btn-action withdraw">
+              <i data-lucide="arrow-up-circle"></i>
+              Withdraw
+            </a>
+          </div>
+        </div>
+      </div>
+      
+        
+      <div class="card-2 info-card-2">
+        <h3 class="info-title-2">
+          <i data-lucide="badge-info" class="icon-title-2 animate-fade-in"></i>
+          Account Information
+        </h3>
+        <div class="table-container-2">
+          <table class="account-table-2">
+            <tbody>
+              <tr>
+                <th>Name</th>
+                <td><%= user.fullName %></td>
+              </tr>
+              <tr>
+                <th>Email</th>
+                <td><%= user.email %></td>
+              </tr>
+              <tr>
+                <th>Country</th>
+                <td><%= user.country %></td>
+              </tr>
+              <tr>
+                <th>Trading Status</th>
+                <td>
+                  <span class="status-badge-2 <%= user.canTrade ? 'status-approved-2' : 'status-pending-2' %>">
+                    <%= user.canTrade ? 'Approved' : 'Pending Approval' %>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>Member Since</th>
+                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+        
+      
+      
+      <div class="market-overview-2">
+        <h3 class="market-title-2">
+          <i data-lucide="bar-chart-3" class="icon-title-2 animate-fade-in"></i>
+          Market Overview
+        </h3>
+        <div class="market-grid-2" id="marketGrid">
+          <!-- Cards will be injected dynamically -->
+        </div>
+      </div>
+      
+      
+    </main>
+  </div>
+  
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <h3>Confirm Logout</h3>
+      <p>Are you sure you want to log out?</p>
+      <div class="modal-buttons">
+        <button id="confirmLogout" class="btn btn-danger">Yes</button>
+        <button id="cancelLogout" class="btn btn-secondary">No</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    lucide.createIcons();
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    const marketData = [
+      { pair: 'BTC/USD', price: 43250.0, change: 2.5 },
+      { pair: 'ETH/USD', price: 2150.0, change: -1.2 },
+      { pair: 'BNB/USD', price: 305.75, change: 0.8 },
+      { pair: 'USDT/USD', price: 1.00, change: 0.0 }
+    ];
+  
+    function renderMarketCards() {
+      const grid = document.getElementById('marketGrid');
+      grid.innerHTML = '';
+  
+      marketData.forEach(data => {
+        const card = document.createElement('div');
+        card.classList.add('market-card');
+  
+        const priceClass = data.change > 0 ? 'up' : data.change < 0 ? 'down' : '';
+        const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : '';
+  
+        card.innerHTML = `
+          <div class="market-pair">${data.pair}</div>
+          <div class="market-price ${priceClass}">$${data.price.toLocaleString()}</div>
+          <div class="market-change ${changeClass}">${data.change > 0 ? '+' : ''}${data.change}%</div>
+        `;
+  
+        grid.appendChild(card);
+      });
+    }
+  
+    // Simulate pulse price change every 10s
+    function simulateMarket() {
+      marketData.forEach(item => {
+        const fluctuation = (Math.random() - 0.5) * 2; // ±1%
+        item.change = parseFloat((item.change + fluctuation).toFixed(2));
+        item.price = parseFloat((item.price * (1 + item.change / 100)).toFixed(2));
+      });
+  
+      renderMarketCards();
+    }
+  
+    renderMarketCards();
+    setInterval(simulateMarket, 10000); // Update every 10 seconds
+  
+    lucide.createIcons(); // Load icons if Lucide is in use
+  </script>
+  <script>
+    const hours = new Date().getHours();
+    let message = "Welcome";
+  
+    if (hours < 12) message = "Good morning";
+    else if (hours < 18) message = "Good afternoon";
+    else message = "Good evening";
+  
+    const userName = "<%= user.fullName.split(' ')[0] %>";
+    document.getElementById("greeting").textContent = `${message}, ${userName}!`;
+  </script>
+  
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
