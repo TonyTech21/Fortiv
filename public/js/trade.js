@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const amountInput = document.getElementById('tradeAmount');
   const signalSelect = document.getElementById('signalSelect');
   
-  const userBalanceElement = document.querySelector('.user-balance');
-  const userBalance = userBalanceElement ? parseFloat(userBalanceElement.textContent.replace('$', '')) : 0;
+  const userBalanceElements = document.querySelectorAll('.user-balance');
+  const userBalance = userBalanceElements.length ? parseFloat(userBalanceElements[0].textContent.replace('$', '')) : 0;
   
   // Initialize trading chart
   initTradingChart();
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  window.confirmTrade = () => {
+  window.confirmTrade = async () => {
     const amount = parseFloat(amountInput.value);
     const selectedSignal = signalSelect.value;
     
@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    if (isNaN(amount) || amount < 500) {
-      showModal('errorModal', 'Invalid Amount', 'Minimum trade amount is $500.00');
+    if (isNaN(amount) || amount < 10) {
+      showModal('errorModal', 'Invalid Amount', 'Minimum trade amount is $10.00');
       return;
     }
     
@@ -42,14 +42,37 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    // Process trade
-    closeModal('tradeModal');
-    showSuccessMessage();
-    
-    // Update user balance
-    if (userBalanceElement) {
-      const newBalance = userBalance - amount;
-      userBalanceElement.textContent = `$${newBalance.toFixed(2)}`;
+    try {
+      // Send trade request to server
+      const response = await fetch('/user/trade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount,
+          signal: selectedSignal
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Trade failed');
+      }
+      
+      const data = await response.json();
+      
+      // Update all balance displays on the page
+      const newBalance = data.newBalance;
+      userBalanceElements.forEach(element => {
+        element.textContent = `$${newBalance.toFixed(2)}`;
+      });
+      
+      // Close trade modal and show success message
+      closeModal('tradeModal');
+      showSuccessMessage();
+      
+    } catch (error) {
+      showModal('errorModal', 'Error', 'Failed to process trade. Please try again.');
     }
   };
   

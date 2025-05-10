@@ -66,7 +66,7 @@ router.post('/signup', checkNotAuthenticated, async (req, res) => {
       email,
       password: hashedPassword,
       country,
-      balance: 500.00,
+      balance: 0.00,
       canTrade: false,
       createdAt: new Date().toISOString()
     };

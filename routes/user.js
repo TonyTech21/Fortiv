@@ -15,6 +15,10 @@ const getUsers = () => {
   return JSON.parse(data);
 };
 
+const saveUsers = (users) => {
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+};
+
 const getWithdrawals = () => {
   const data = fs.readFileSync(withdrawalsPath, 'utf8');
   return JSON.parse(data);
@@ -39,6 +43,18 @@ const getCurrentUser = (req) => {
   return users.find(user => user.id === req.session.userId);
 };
 
+// Helper function to update user balance
+const updateUserBalance = (userId, newBalance) => {
+  const users = getUsers();
+  const userIndex = users.findIndex(user => user.id === userId);
+  if (userIndex !== -1) {
+    users[userIndex].balance = newBalance;
+    saveUsers(users);
+    return users[userIndex];
+  }
+  return null;
+};
+
 // Dashboard route
 router.get('/dashboard', (req, res) => {
   const user = getCurrentUser(req);
@@ -61,6 +77,40 @@ router.get('/trade', (req, res) => {
   }
   
   res.render('user/trade', { user, page: 'trade' });
+});
+
+// Process trade route
+router.post('/trade', (req, res) => {
+  const user = getCurrentUser(req);
+  
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  const { amount, signal } = req.body;
+  const tradeAmount = parseFloat(amount);
+  
+  // Validate trade
+  if (isNaN(tradeAmount) || tradeAmount < 10) {
+    return res.status(400).json({ error: 'Invalid trade amount' });
+  }
+  
+  if (tradeAmount > user.balance) {
+    return res.status(400).json({ error: 'Insufficient balance' });
+  }
+  
+  // Update user balance
+  const newBalance = user.balance - tradeAmount;
+  const updatedUser = updateUserBalance(user.id, newBalance);
+  
+  if (!updatedUser) {
+    return res.status(500).json({ error: 'Failed to process trade' });
+  }
+  
+  res.json({ 
+    success: true,
+    newBalance: updatedUser.balance
+  });
 });
 
 // Deposit route

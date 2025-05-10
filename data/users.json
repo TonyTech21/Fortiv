@@ -1,14 +1,12 @@
 [
-  
- 
   {
     "id": "f62a6653-b1d2-4c2d-afbe-f4e574ee3455",
     "fullName": "Ajibola Anthony",
     "email": "webberaxel4@gmail.com",
     "password": "$2a$10$K0F9uipqOGhQwZvzolNse.clerpo/h9uTssIABAzKINa/Z/ytCn7i",
     "country": "Nigeria",
-    "balance": 600,
-    "canTrade": false,
+    "balance": 3.119999999999891,
+    "canTrade": true,
     "createdAt": "2025-05-03T08:07:33.049Z"
   }
 ]
