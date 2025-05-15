@@ -1,65 +1,47 @@
-// Authentication routes for Trading Platform
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { checkAuthenticated, checkNotAuthenticated } = require('../middleware/auth');
 
-// Helper function to read/write JSON files
-const usersPath = path.join(__dirname, '../data/users.json');
-
-const getUsers = () => {
-  const data = fs.readFileSync(usersPath, 'utf8');
-  return JSON.parse(data);
-};
-
-const saveUsers = (users) => {
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
-};
-
-// Sign up GET route
+// Signup GET
 router.get('/signup', checkNotAuthenticated, (req, res) => {
   res.render('auth/signup', { error: null });
 });
 
-// Sign up POST route
+// Signup POST
 router.post('/signup', checkNotAuthenticated, async (req, res) => {
   try {
+    const db = req.app.locals.db;
+    const users = db.collection('users');
+
     const { fullName, email, password, country } = req.body;
-    
-    // Basic validation
+
+    // Validate
     if (!fullName || !email || !password || !country) {
-      return res.render('auth/signup', { 
+      return res.render('auth/signup', {
         error: 'All fields are required',
         formData: req.body
       });
     }
-    
-    // Password validation (min 8 chars, must include uppercase)
+
     if (password.length < 8 || !/[A-Z]/.test(password)) {
-      return res.render('auth/signup', { 
+      return res.render('auth/signup', {
         error: 'Password must be at least 8 characters and include an uppercase letter',
         formData: req.body
       });
     }
-    
-    // Check if user already exists
-    const users = getUsers();
-    const existingUser = users.find(user => user.email === email);
-    
+
+    const existingUser = await users.findOne({ email });
     if (existingUser) {
-      return res.render('auth/signup', { 
+      return res.render('auth/signup', {
         error: 'Email already registered',
         formData: req.body
       });
     }
-    
-    // Hash the password
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create new user with default $500 balance and trading disabled
+
     const newUser = {
       id: uuidv4(),
       fullName,
@@ -70,104 +52,99 @@ router.post('/signup', checkNotAuthenticated, async (req, res) => {
       canTrade: false,
       createdAt: new Date().toISOString()
     };
-    
-    // Save the user
-    users.push(newUser);
-    saveUsers(users);
-    
-    // Redirect to login
+
+    await users.insertOne(newUser);
+
     req.session.flashMessage = 'Account created successfully! Please log in.';
     res.redirect('/login');
+
   } catch (error) {
     console.error('Signup error:', error);
-    res.render('auth/signup', { 
+    res.render('auth/signup', {
       error: 'An error occurred. Please try again.',
       formData: req.body
     });
   }
 });
 
-// Login GET route
+// Login GET
 router.get('/login', checkNotAuthenticated, (req, res) => {
   const flashMessage = req.session.flashMessage;
   req.session.flashMessage = null;
-  
-  res.render('auth/login', { 
-    error: null, 
+
+  res.render('auth/login', {
+    error: null,
     message: flashMessage
   });
 });
 
-// Login POST route
+// Login POST
 router.post('/login', checkNotAuthenticated, async (req, res) => {
   try {
+    const db = req.app.locals.db;
+    const users = db.collection('users');
+
     const { email, password } = req.body;
-    
-    // Basic validation
+
     if (!email || !password) {
-      return res.render('auth/login', { 
+      return res.render('auth/login', {
         error: 'Email and password are required',
         formData: { email }
       });
     }
-    
-    // Find user
-    const users = getUsers();
-    const user = users.find(user => user.email === email);
-    
+
+    const user = await users.findOne({ email });
+
     if (!user) {
-      return res.render('auth/login', { 
+      return res.render('auth/login', {
         error: 'Invalid email or password',
         formData: { email }
       });
     }
-    
-    // Check password
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     if (!isPasswordValid) {
-      return res.render('auth/login', { 
+      return res.render('auth/login', {
         error: 'Invalid email or password',
         formData: { email }
       });
     }
-    
-    // Set user session
-    req.session.userId = user.id;
-    
-    // Redirect to dashboard
+
+    req.session.userId = user.id; // Save ID for later session use
+
     res.redirect('/user/dashboard');
+
   } catch (error) {
     console.error('Login error:', error);
-    res.render('auth/login', { 
+    res.render('auth/login', {
       error: 'An error occurred. Please try again.',
       formData: { email: req.body.email }
     });
   }
 });
 
-// Admin login GET route
+// Admin Login GET
 router.get('/admin/login', (req, res) => {
   res.render('admin/login', { error: null });
 });
 
-// Admin login POST route
+// Admin Login POST
 router.post('/admin/login', (req, res) => {
   const { email, password } = req.body;
-  
-  // Hardcoded admin credentials
+
   if (email === 'admin@example.com' && password === 'Admin123') {
     req.session.isAdmin = true;
     return res.redirect('/admin/dashboard');
   }
-  
-  res.render('admin/login', { 
+
+  res.render('admin/login', {
     error: 'Invalid admin credentials',
     formData: { email }
   });
 });
 
-// Logout route
+// Logout
 router.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
