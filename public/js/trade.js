@@ -111,120 +111,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initTradingChart() {
   const chartCanvas = document.getElementById('tradingChart');
-  if (!chartCanvas) return;
-  
+  const traderOverlay = document.getElementById('traderOverlay');
+
+  if (!chartCanvas || !traderOverlay) return;
+
   const ctx = chartCanvas.getContext('2d');
+
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: generateTimeLabels(50),
+      labels: generateTimeLabels(40),
       datasets: [{
         label: 'EUR/USD',
-        data: generatePriceData(50),
+        data: generatePriceData(40),
         borderColor: '#00c7ff',
         backgroundColor: 'rgba(0, 199, 255, 0.1)',
         borderWidth: 2,
         fill: true,
-        tension: 0.4
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#00f7ff'
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
+      animation: false,
+      plugins: { legend: { display: false } },
       scales: {
-        y: {
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          },
-          ticks: {
-            color: '#a0aec0'
-          }
-        },
-        x: {
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          },
-          ticks: {
-            color: '#a0aec0',
-            maxRotation: 0
-          }
-        }
+        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#a0aec0' } },
+        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#a0aec0', maxRotation: 0 } }
       }
-    }
+    },
+    plugins: [{
+      afterDraw: chart => {
+        traderOverlay.innerHTML = '';
+        const meta = chart.getDatasetMeta(0);
+
+        // const names = [
+        //   'Alice', 'Raj', 'Chen', 'Maria', 'Liam', 'Zara', 'Noah', 'Emily', 'John', 'Mei',
+        //   'Victor', 'Sandra', 'Ahmed', 'Yuki', 'Carlos', 'Anna', 'Leo', 'Grace', 'Isaac', 'Sophie',
+        //   'Omar', 'Julia', 'Arjun', 'Daisy', 'Tyler', 'Natalie', 'Ibrahim', 'Fatima', 'Mateo', 'Elena',
+        //   'James', 'Amara', 'Max', 'Nia', 'Ethan', 'Tina', 'Hassan', 'Ruby', 'Lucas', 'Chloe'
+        // ];
+
+        meta.data.forEach((point, index) => {
+          // const name = names[index % names.length];
+          const amount = `$${(Math.random() * 900 + 100).toFixed(0)}`;
+          const bubble = document.createElement('div');
+          bubble.className = 'trader-bubble';
+          bubble.style.left = `${point.x}px`;
+          bubble.style.top = `${point.y}px`;
+          bubble.style.setProperty('--delay', `${(index % 10) * 0.2}s`);
+          bubble.style.backgroundImage = `url('https://i.pravatar.cc/40?img=${index + 1}')`;
+
+          const info = document.createElement('span');
+          info.innerText = `${amount}`;
+          bubble.appendChild(info);
+          traderOverlay.appendChild(bubble);
+        });
+      }
+    }]
   });
-  
-  // Update chart periodically
+
   setInterval(() => {
     const data = chart.data.datasets[0].data;
     data.shift();
     data.push(generateNextPrice(data[data.length - 1]));
-    
+
     const labels = chart.data.labels;
     labels.shift();
-    labels.push(generateNextTimeLabel(labels[labels.length - 1]));
-    
-    chart.update('none');
-  }, 1000);
-}
+    labels.push(generateNextTimeLabel());
 
-function initForexTicker() {
-  const ticker = document.getElementById('forexTicker');
-  if (!ticker) return;
-  
-  const pairs = [
-    { pair: 'EUR/USD', price: '1.0876', change: '+0.15%' },
-    { pair: 'GBP/USD', price: '1.2534', change: '-0.08%' },
-    { pair: 'USD/JPY', price: '148.92', change: '+0.25%' },
-    { pair: 'USD/CHF', price: '0.8765', change: '-0.12%' }
-  ];
-  
-  const tickerContent = document.createElement('div');
-  tickerContent.className = 'ticker-content';
-  
-  pairs.forEach(pair => {
-    const item = document.createElement('div');
-    item.className = 'ticker-item';
-    const changeClass = parseFloat(pair.change) >= 0 ? 'positive' : 'negative';
-    
-    item.innerHTML = `
-      <span class="ticker-pair">${pair.pair}</span>
-      <span class="ticker-price">${pair.price}</span>
-      <span class="ticker-change ${changeClass}">${pair.change}</span>
-    `;
-    
-    tickerContent.appendChild(item);
-  });
-  
-  ticker.appendChild(tickerContent.cloneNode(true));
-  ticker.appendChild(tickerContent.cloneNode(true));
+    chart.update('none');
+  }, 2000);
+
+  // Responsive chart resizing
+  new ResizeObserver(() => chart.resize()).observe(chartCanvas);
 }
 
 function generateTimeLabels(count) {
   const labels = [];
   const now = new Date();
-  
   for (let i = count - 1; i >= 0; i--) {
     const time = new Date(now - i * 60000);
     labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
   }
-  
   return labels;
 }
 
 function generatePriceData(count) {
   const data = [];
   let price = 1.0850;
-  
   for (let i = 0; i < count; i++) {
     price += (Math.random() - 0.5) * 0.0010;
     data.push(price);
   }
-  
   return data;
 }
 
@@ -232,7 +215,56 @@ function generateNextPrice(lastPrice) {
   return lastPrice + (Math.random() - 0.5) * 0.0010;
 }
 
-function generateNextTimeLabel(lastLabel) {
+function generateNextTimeLabel() {
   const time = new Date();
   return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
+
+window.addEventListener('DOMContentLoaded', initTradingChart);
+
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+const thoughtBubbleZone = document.getElementById('thoughtBubbleZone');
+
+const thoughts = [
+  { text: "Feeling confident!", emoji: "😎" },
+  { text: "AI's got this.", emoji: "🤖" },
+  { text: "Holding steady...", emoji: "🧘" },
+  { text: "Risk? Calculated.", emoji: "🧠" },
+  { text: "Vibes align. Entry made.", emoji: "✨" },
+  { text: "Technicals say yes.", emoji: "📊" },
+  { text: "Market whispering again...", emoji: "🌌" },
+  { text: "Momentum is spicy 🌶️", emoji: "🔥" },
+];
+
+function createThoughtBubble() {
+  const bubble = document.createElement('div');
+  bubble.className = 'thought-bubble';
+
+  const randomIndex = Math.floor(Math.random() * thoughts.length);
+  const confidence = Math.floor(Math.random() * 41) + 60; // 60–100%
+  const avatarId = Math.floor(Math.random() * 40) + 1;
+
+  const avatar = document.createElement('img');
+  avatar.src = `https://i.pravatar.cc/40?img=${avatarId}`;
+
+  const content = document.createElement('span');
+  content.innerText = `"${thoughts[randomIndex].text}" ${thoughts[randomIndex].emoji} • ${confidence}%`;
+
+  bubble.appendChild(avatar);
+  bubble.appendChild(content);
+
+  // Random X position
+  bubble.style.left = `${Math.random() * 80 + 5}%`;
+
+  thoughtBubbleZone.appendChild(bubble);
+
+  // Remove after animation ends
+  setTimeout(() => {
+    bubble.remove();
+  }, 6000);
+}
+
+// Create a new thought every 3 seconds
+setInterval(createThoughtBubble, 3000);

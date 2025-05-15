@@ -4,6 +4,30 @@ const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const { MongoClient } = require('mongodb');
+
+const uri = "mongodb+srv://webberaxel4:%3CBabatunde%4020.%3E@fortiv.sctageg.mongodb.net/fortiv_db";
+
+const client = new MongoClient(uri, {
+  tls: true,
+  retryWrites: true
+});
+
+async function connectToMongo() {
+  try {
+    await client.connect();
+    console.log("✅ Connected to MongoDB");
+    app.locals.db = client.db("fortiv_db");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err);
+  }
+}
+
+connectToMongo();
+
+
+
+
 
 // Create Express app
 const app = express();

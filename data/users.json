@@ -8,5 +8,15 @@
     "balance": 3.119999999999891,
     "canTrade": true,
     "createdAt": "2025-05-03T08:07:33.049Z"
+  },
+  {
+    "id": "823d0ac3-7637-4f1c-b046-3fb4d4b1e8fb",
+    "fullName": "Ajibola Anthony",
+    "email": "anthonyajibola65@gmail.com",
+    "password": "$2a$10$thnrzwdGRGh.99UPoICto.a8owcZFE9xP5wCiZw.xgYCZh4y8r9Li",
+    "country": "Nigeria",
+    "balance": 0,
+    "canTrade": false,
+    "createdAt": "2025-05-14T21:13:45.214Z"
   }
 ]

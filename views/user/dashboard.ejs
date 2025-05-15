@@ -13,42 +13,47 @@
     
     <main class="dashboard-content">
       <div class="welcome-header enhanced-welcome">
-        <div class="welcome-left">
-          <div class="greeting-icon">👋</div>
-          <div class="welcome-texts">
-            <h2 id="greeting">Welcome, <%= user.fullName.split(' ')[0] %>!</h2>
-            <p class="sub-greeting">We’re glad to see you again.</p>
-            <p class="last-login">Last login: <%= new Date().toLocaleString() %></p>
-          </div>
-        </div>
-        
-      </div>
+  <div class="ambient-ring"></div> <!-- NEW ambient ring -->
+
+  <div class="welcome-left">
+    <div class="greeting-icon waving-hand">👋</div>
+    <div class="welcome-texts">
+      <h2 id="greeting" class="dynamic-typing">
+        Welcome, <%= user.fullName.split(' ')[0] %>!
+      </h2>
+      <p class="sub-greeting">We’re glad to see you again.</p>
+      <p class="last-login">Last login: <%= new Date().toLocaleString() %></p>
+    </div>
+  </div>
+</div>
+
       
       
       <div class="account-overview">
-        <div class="card-glass balance-card">
-          <h3 class="balance-title" style="text-align: center !important;">
-            <i data-lucide="wallet" class="icon-title"></i>
-            Account Balance
-          </h3>
-          <div class="balance-amount-glow">$<%= user.balance.toFixed(2) %></div>
-          
-          <div class="balance-actions">
-            <a href="/user/deposit" class="btn-action deposit">
-              <i data-lucide="arrow-down-circle"></i>
-              Deposit
-            </a>
-            <a href="/user/trade" class="btn-action trade">
-              <i data-lucide="activity"></i>
-              Trade
-            </a>
-            <a href="/user/withdraw" class="btn-action withdraw">
-              <i data-lucide="arrow-up-circle"></i>
-              Withdraw
-            </a>
-          </div>
-        </div>
-      </div>
+  <div class="card-glass balance-card ultra-card">
+    <div class="balance-aura"></div> <!-- Glowing pulse behind balance -->
+    
+    <h3 class="balance-title">
+      <i data-lucide="wallet" class="icon-title"></i>
+      Account Balance
+    </h3>
+
+    <div class="balance-amount-glow">$<%= user.balance.toFixed(2) %></div>
+
+    <div class="balance-actions">
+      <a href="/user/deposit" class="btn-action deposit ripple">
+        <i data-lucide="arrow-down-circle"></i> Deposit
+      </a>
+      <a href="/user/trade" class="btn-action trade ripple">
+        <i data-lucide="activity"></i> Trade
+      </a>
+      <a href="/user/withdraw" class="btn-action withdraw ripple">
+        <i data-lucide="arrow-up-circle"></i> Withdraw
+      </a>
+    </div>
+  </div>
+</div>
+
       
         
       <div class="card-2 info-card-2">
@@ -88,7 +93,14 @@
         </div>
       </div>
       
-        
+      <div class="sentiment-scanner-2">
+        <h3 class="sentiment-title-2">
+          <i data-lucide="cpu" class="icon-title-2 animate-fade-in"></i>
+          AI Sentiment Scanner
+        </h3>
+        <div class="sentiment-grid-2" id="sentimentGrid"></div>
+      </div>
+
       
       
       <div class="market-overview-2">
@@ -100,6 +112,8 @@
           <!-- Cards will be injected dynamically -->
         </div>
       </div>
+
+      
       
       
     </main>
@@ -119,51 +133,14 @@
     lucide.createIcons();
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    const marketData = [
-      { pair: 'BTC/USD', price: 43250.0, change: 2.5 },
-      { pair: 'ETH/USD', price: 2150.0, change: -1.2 },
-      { pair: 'BNB/USD', price: 305.75, change: 0.8 },
-      { pair: 'USDT/USD', price: 1.00, change: 0.0 }
-    ];
-  
-    function renderMarketCards() {
-      const grid = document.getElementById('marketGrid');
-      grid.innerHTML = '';
-  
-      marketData.forEach(data => {
-        const card = document.createElement('div');
-        card.classList.add('market-card');
-  
-        const priceClass = data.change > 0 ? 'up' : data.change < 0 ? 'down' : '';
-        const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : '';
-  
-        card.innerHTML = `
-          <div class="market-pair">${data.pair}</div>
-          <div class="market-price ${priceClass}">$${data.price.toLocaleString()}</div>
-          <div class="market-change ${changeClass}">${data.change > 0 ? '+' : ''}${data.change}%</div>
-        `;
-  
-        grid.appendChild(card);
-      });
-    }
-  
-    // Simulate pulse price change every 10s
-    function simulateMarket() {
-      marketData.forEach(item => {
-        const fluctuation = (Math.random() - 0.5) * 2; // ±1%
-        item.change = parseFloat((item.change + fluctuation).toFixed(2));
-        item.price = parseFloat((item.price * (1 + item.change / 100)).toFixed(2));
-      });
-  
-      renderMarketCards();
-    }
-  
-    renderMarketCards();
-    setInterval(simulateMarket, 10000); // Update every 10 seconds
-  
-    lucide.createIcons(); // Load icons if Lucide is in use
-  </script>
+ <script>
+  async function fetchMarketData() {
+  const response = await fetch('https://api.example.com/market-data');
+  const data = await response.json();
+  // Process and display data
+}
+
+ </script>
   <script>
     const hours = new Date().getHours();
     let message = "Welcome";
@@ -175,7 +152,98 @@
     const userName = "<%= user.fullName.split(' ')[0] %>";
     document.getElementById("greeting").textContent = `${message}, ${userName}!`;
   </script>
-  
+  <script>
+  const marketData = [
+    { pair: 'BTC/USD', price: 43250.0, change: 2.5 },
+    { pair: 'ETH/USD', price: 2150.0, change: -1.2 },
+    { pair: 'BNB/USD', price: 305.75, change: 0.8 },
+    { pair: 'USDT/USD', price: 1.00, change: 0.0 }
+  ];
+
+  function renderMarketCards() {
+    const grid = document.getElementById('marketGrid');
+    grid.innerHTML = '';
+
+    marketData.forEach(data => {
+      const card = document.createElement('div');
+      card.classList.add('market-card');
+
+      const priceClass = data.change > 0 ? 'up' : data.change < 0 ? 'down' : '';
+      const changeClass = data.change > 0 ? 'positive' : data.change < 0 ? 'negative' : '';
+
+      card.innerHTML = `
+        <div class="market-pair">${data.pair}</div>
+        <div class="market-price ${priceClass}">$${data.price.toLocaleString()}</div>
+        <div class="market-change ${changeClass}">${data.change > 0 ? '+' : ''}${data.change}%</div>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  function simulateMarket() {
+    marketData.forEach(item => {
+      const fluctuation = (Math.random() - 0.5) * 2;
+      item.change = parseFloat((item.change + fluctuation).toFixed(2));
+      item.price = parseFloat((item.price * (1 + item.change / 100)).toFixed(2));
+    });
+
+    renderMarketCards();
+  }
+
+  renderMarketCards();
+  setInterval(simulateMarket, 10000);
+
+  lucide.createIcons();
+</script>
+<script>
+  const sentimentData = [
+    { pair: "EUR/USD", bias: "Buy", confidence: 85 },
+    { pair: "GBP/USD", bias: "Sell", confidence: 73 },
+    { pair: "USD/JPY", bias: "Neutral", confidence: 50 },
+    { pair: "XAU/USD", bias: "Buy", confidence: 91 },
+  ];
+
+  function renderSentimentCards() {
+    const grid = document.getElementById('sentimentGrid');
+    grid.innerHTML = '';
+
+    sentimentData.forEach(item => {
+      const card = document.createElement('div');
+      card.classList.add('sentiment-card-2');
+
+      const biasClass = item.bias === 'Buy' ? 'bias-buy' :
+                        item.bias === 'Sell' ? 'bias-sell' : 'bias-neutral';
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      card.innerHTML = `
+        <div class="sentiment-pair">${item.pair}</div>
+        <div class="sentiment-bias ${biasClass}">${item.bias}</div>
+        <div class="sentiment-confidence">Confidence: ${item.confidence}%</div>
+        <div class="sentiment-time">Signal at ${time}</div>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  function simulateSentimentChange() {
+    sentimentData.forEach(item => {
+      const rand = Math.random();
+      if (rand > 0.7) {
+        const options = ["Buy", "Sell", "Neutral"];
+        item.bias = options[Math.floor(Math.random() * 3)];
+        item.confidence = Math.floor(Math.random() * 41) + 60;
+      }
+    });
+    renderSentimentCards();
+  }
+
+  renderSentimentCards();
+  setInterval(simulateSentimentChange, 15000);
+</script>
+
   <script src="/js/dashboard.js"></script>
 </body>
 </html>
