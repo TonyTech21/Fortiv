@@ -4,13 +4,16 @@ const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+
+
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://webberaxel4:%3CBabatunde%4020.%3E@fortiv.sctageg.mongodb.net/fortiv_db";
+require('dotenv').config();
+
+const uri = process.env.MONGO_URI;
 
 const client = new MongoClient(uri, {
-  tls: true,
-  retryWrites: true
+  tls: true
 });
 
 async function connectToMongo() {
@@ -24,6 +27,8 @@ async function connectToMongo() {
 }
 
 connectToMongo();
+
+
 
 
 
