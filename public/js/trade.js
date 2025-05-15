@@ -11,9 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const userBalanceElements = document.querySelectorAll('.user-balance');
   const userBalance = userBalanceElements.length ? parseFloat(userBalanceElements[0].textContent.replace('$', '')) : 0;
   
-  // Initialize trading chart
-  initTradingChart();
-  initForexTicker();
+ 
   
   if (startTradeBtn) {
     startTradeBtn.disabled = !canTrade;
