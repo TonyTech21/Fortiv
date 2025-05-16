@@ -1,132 +1,170 @@
+// Admin routes for Trading Platform
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
-// Middleware to protect admin routes
+// Helper functions to read/write JSON files
+const usersPath = path.join(__dirname, '../data/users.json');
+const withdrawalsPath = path.join(__dirname, '../data/withdrawals.json');
+const depositsPath = path.join(__dirname, '../data/deposits.json');
+
+const getUsers = () => {
+  const data = fs.readFileSync(usersPath, 'utf8');
+  return JSON.parse(data);
+};
+
+const saveUsers = (users) => {
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+};
+
+const getWithdrawals = () => {
+  const data = fs.readFileSync(withdrawalsPath, 'utf8');
+  return JSON.parse(data);
+};
+
+const saveWithdrawals = (withdrawals) => {
+  fs.writeFileSync(withdrawalsPath, JSON.stringify(withdrawals, null, 2));
+};
+
+const getDeposits = () => {
+  const data = fs.readFileSync(depositsPath, 'utf8');
+  return JSON.parse(data);
+};
+
+const saveDeposits = (deposits) => {
+  fs.writeFileSync(depositsPath, JSON.stringify(deposits, null, 2));
+};
+
+// Admin authentication middleware
 const checkAdmin = (req, res, next) => {
-  if (req.session.isAdmin) return next();
+  if (req.session.isAdmin) {
+    return next();
+  }
   res.redirect('/admin/login');
 };
 
-// Admin Dashboard
-router.get('/dashboard', checkAdmin, async (req, res) => {
-  const db = req.app.locals.db;
-  const usersCol = db.collection('users');
-  const depositsCol = db.collection('deposits');
-  const withdrawalsCol = db.collection('withdrawals');
-
+// Admin dashboard route
+router.get('/dashboard', checkAdmin, (req, res) => {
+  const users = getUsers();
+  const withdrawals = getWithdrawals();
+  const deposits = getDeposits();
   const query = req.query.search || '';
   const view = req.query.view || 'users';
-
-  let users = await usersCol.find({}).toArray();
-  let deposits = await depositsCol.find({}).toArray();
-  let withdrawals = await withdrawalsCol.find({}).toArray();
-
+  
+  // Filter users based on search query
+  let filteredUsers = users;
   if (query) {
-    const lowerQuery = query.toLowerCase();
-    users = users.filter(u =>
-      u.id.toLowerCase().includes(lowerQuery) ||
-      u.fullName.toLowerCase().includes(lowerQuery)
+    filteredUsers = users.filter(user => 
+      user.id.toLowerCase().includes(query.toLowerCase()) || 
+      user.fullName.toLowerCase().includes(query.toLowerCase())
     );
   }
-
-  res.render('admin/dashboard', {
-    users,
-    deposits,
+  
+  res.render('admin/dashboard', { 
+    users: filteredUsers,
     withdrawals,
+    deposits,
     query,
     view,
     success: req.query.success
   });
 });
 
-// Update User Balance
-router.post('/user/:id/update-balance', checkAdmin, async (req, res) => {
-  const db = req.app.locals.db;
+// Update user balance route
+router.post('/user/:id/update-balance', checkAdmin, (req, res) => {
+  const users = getUsers();
   const userId = req.params.id;
   const newBalance = parseFloat(req.body.balance);
-
+  
+  // Validate balance
   if (isNaN(newBalance) || newBalance < 0) {
     return res.redirect('/admin/dashboard?success=false');
   }
-
-  const result = await db.collection('users').updateOne(
-    { id: userId },
-    { $set: { balance: newBalance } }
-  );
-
-  res.redirect(`/admin/dashboard?success=${result.modifiedCount === 1}`);
+  
+  // Find and update user
+  const userIndex = users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    users[userIndex].balance = newBalance;
+    saveUsers(users);
+    return res.redirect('/admin/dashboard?success=true');
+  }
+  
+  res.redirect('/admin/dashboard?success=false');
 });
 
-// Toggle User Trading Status
-router.post('/user/:id/toggle-trading', checkAdmin, async (req, res) => {
-  const db = req.app.locals.db;
+// Toggle user trading status
+router.post('/user/:id/toggle-trading', checkAdmin, (req, res) => {
+  const users = getUsers();
   const userId = req.params.id;
   const action = req.body.action;
-
-  const canTrade = action === 'approve';
-
-  const result = await db.collection('users').updateOne(
-    { id: userId },
-    { $set: { canTrade } }
-  );
-
-  res.redirect(`/admin/dashboard?success=${result.modifiedCount === 1}`);
+  
+  const userIndex = users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    users[userIndex].canTrade = action === 'approve';
+    saveUsers(users);
+    return res.redirect('/admin/dashboard?success=true');
+  }
+  
+  res.redirect('/admin/dashboard?success=false');
 });
 
-// Approve or Reject Withdrawal
-router.post('/withdrawal/:id/:action', checkAdmin, async (req, res) => {
-  const db = req.app.locals.db;
+// Handle withdrawal approval/rejection
+router.post('/withdrawal/:id/:action', checkAdmin, (req, res) => {
+  const withdrawals = getWithdrawals();
   const withdrawalId = req.params.id;
   const action = req.params.action;
-
-  const withdrawalsCol = db.collection('withdrawals');
-  const usersCol = db.collection('users');
-
-  const withdrawal = await withdrawalsCol.findOne({ id: withdrawalId });
-
-  if (!withdrawal) return res.redirect('/admin/dashboard?view=withdrawals&success=false');
-
-  const updateResult = await withdrawalsCol.updateOne(
-    { id: withdrawalId },
-    { $set: { status: action === 'approve' ? 'approved' : 'rejected' } }
-  );
-
-  if (action === 'approve') {
-    await usersCol.updateOne(
-      { id: withdrawal.userId },
-      { $inc: { balance: -withdrawal.amount } }
-    );
+  
+  const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawalId);
+  
+  if (withdrawalIndex !== -1) {
+    withdrawals[withdrawalIndex].status = action === 'approve' ? 'approved' : 'rejected';
+    
+    // If approved, deduct from user's balance
+    if (action === 'approve') {
+      const users = getUsers();
+      const userIndex = users.findIndex(u => u.id === withdrawals[withdrawalIndex].userId);
+      if (userIndex !== -1) {
+        users[userIndex].balance -= withdrawals[withdrawalIndex].amount;
+        saveUsers(users);
+      }
+    }
+    
+    saveWithdrawals(withdrawals);
+    return res.redirect('/admin/dashboard?view=withdrawals&success=true');
   }
-
-  res.redirect(`/admin/dashboard?view=withdrawals&success=${updateResult.modifiedCount === 1}`);
+  
+  res.redirect('/admin/dashboard?view=withdrawals&success=false');
 });
 
-// Approve or Reject Deposit
-router.post('/deposit/:id/:action', checkAdmin, async (req, res) => {
-  const db = req.app.locals.db;
+// Handle deposit approval/rejection
+router.post('/deposit/:id/:action', checkAdmin, (req, res) => {
+  const deposits = getDeposits();
   const depositId = req.params.id;
   const action = req.params.action;
-
-  const depositsCol = db.collection('deposits');
-  const usersCol = db.collection('users');
-
-  const deposit = await depositsCol.findOne({ id: depositId });
-
-  if (!deposit) return res.redirect('/admin/dashboard?view=deposits&success=false');
-
-  const updateResult = await depositsCol.updateOne(
-    { id: depositId },
-    { $set: { status: action === 'approve' ? 'approved' : 'rejected' } }
-  );
-
-  if (action === 'approve') {
-    await usersCol.updateOne(
-      { id: deposit.userId },
-      { $inc: { balance: deposit.amount } }
-    );
+  
+  const depositIndex = deposits.findIndex(d => d.id === depositId);
+  
+  if (depositIndex !== -1) {
+    deposits[depositIndex].status = action === 'approve' ? 'approved' : 'rejected';
+    
+    // If approved, update user balance
+    if (action === 'approve') {
+      const users = getUsers();
+      const userIndex = users.findIndex(u => u.id === deposits[depositIndex].userId);
+      if (userIndex !== -1) {
+        users[userIndex].balance += deposits[depositIndex].amount;
+        saveUsers(users);
+      }
+    }
+    
+    saveDeposits(deposits);
+    return res.redirect('/admin/dashboard?view=deposits&success=true');
   }
-
-  res.redirect(`/admin/dashboard?view=deposits&success=${updateResult.modifiedCount === 1}`);
+  
+  res.redirect('/admin/dashboard?view=deposits&success=false');
 });
 
 module.exports = router;
